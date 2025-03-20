@@ -1,1 +1,0 @@
-# atlas-architecture-go-sdk
