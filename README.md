@@ -1,17 +1,23 @@
-# MongoDB Atlas Architecture Center Go SDK Examples
+# Atlas Go SDK Examples for the MongoDB Atlas Architecture Center
 
-This repository contains runnable examples demonstrating how to use the [Atlas Go SDK](https://www.mongodb.com/docs/atlas/sdk/) to interact with MongoDB Atlas. These examples support the best practices described in the [Atlas Architecture Center documentation](https://www.mongodb.com/docs/atlas/architecture/current/).
+This repository contains runnable examples for the 
+[Atlas Go SDK](https://www.mongodb.com/docs/atlas/sdk/) 
+that align with best practices from the MongoDB 
+[Atlas Architecture
+Center](https://www.mongodb.com/docs/atlas/architecture/current/).
 
-## Overview
+Use these examples as starting points for your own Atlas integration. 
 
-This project provides ready-to-run Go code examples that demonstrate:
+## Features
 
-- Authentication with [service accounts](https://www.mongodb.com/docs/atlas/architecture/current/auth/#service-accounts)
-- Retrieving and analyzing Atlas metrics
-- Fetching and processing Atlas logs
-- Managing Atlas resources programmatically
+Currently, the repository includes examples for:
 
-Use these examples as starting points for your own Atlas integration.
+- Authenticate with service accounts
+- Retrieve cluster and database metrics
+- Download logs for a specific host
+- Programmatically manage Atlas resources 
+
+As the Architecture Center documentation evolves, this repository will be updated with new examples and improvements to existing code.
 
 ## Project Structure
 
@@ -21,25 +27,26 @@ Use these examples as starting points for your own Atlas integration.
 │   ├── get_logs/main.go
 │   ├── get_metrics_disk/main.go
 │   └── get_metrics_process/main.go
-├── configs              # Atlas configurations
+├── configs              # Atlas configuration template
 │   └── config.json
-├── internal             # Shared code
-│   ├── auth/client.go
+├── internal             # Shared utilities and helpers
+│   ├── auth/
+│   ├── config/
 │   ├── logs/
 │   ├── metrics/
 │   └── utils.go
 ├── go.mod
 ├── go.sum
-├── .gitignore           # Ignores .env file and /log output 
-└── .env.example         # Example environment variables 
+├── .gitignore           # Ignores .env file and log output
+└── .env.example         # Example environment variables
 ```
 
 ## Prerequisites
 
 - Go 1.16 or later
-- A MongoDB Atlas account with:
-  - An Atlas project and cluster
-  - Service account credentials with appropriate permissions
+- A MongoDB Atlas project and cluster
+- Service account credentials with appropriate permissions. See
+    [Service Account Overview](https://www.mongodb.com/docs/atlas/api/service-accounts-overview/).
 
 ## Setup
 
@@ -49,24 +56,24 @@ Use these examples as starting points for your own Atlas integration.
    cd atlas-architecture-go-sdk
    ```
 
-2. Create a `.env` file with your service account credentials:
+2. Create a `.env` file in the root directory with your MongoDB Atlas service account credentials:
    ```env
    MONGODB_ATLAS_SERVICE_ACCOUNT_ID=your_service_account_id
    MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET=your_service_account_secret
    ```
-   > **NOTE:** For production use, consider a secrets manager like HashiCorp Vault or AWS Secrets Manager instead of environment variables. See [Secrets management](https://www.mongodb.com/docs/atlas/architecture/current/auth/#secrets-management).
+   > **NOTE:** For production, use a secrets manager (e.g. HashiCorp Vault, AWS Secrets Manager) instead of environment variables. See [Secrets management](https://www.mongodb.com/docs/atlas/architecture/current/auth/#secrets-management).
 
-3. Update `configs/config.json` with your Atlas details:
+3. Configure Atlas details in `configs/config.json`:
    ```json
    {
-     "MONGODB_ATLAS_BASE_URL": "<optional-non-default-base-url>",
+     "MONGODB_ATLAS_BASE_URL": "<optional-base-url>",
      "ATLAS_ORG_ID": "<your-organization-id>",
      "ATLAS_PROJECT_ID": "<your-project-id>",
      "ATLAS_CLUSTER_NAME": "<your-cluster-name>",
      "ATLAS_PROCESS_ID": "<cluster-name-shard-00-00.hostsuffix.mongodb.net:port>"
    }
    ```
-   > **NOTE:** The default base URL is `https://cloud.mongodb.com` if not specified.
+   > **NOTE:** The base URL defaults to `https://cloud.mongodb.com` if not specified.
 
 4. Install dependencies:
    ```bash
@@ -79,7 +86,7 @@ Use these examples as starting points for your own Atlas integration.
 ```bash
 go run cmd/get_logs/main.go
 ```
-Logs save to the `./logs` directory as both `.gz` and uncompressed `.txt` files.
+Logs output to `./logs` as `.gz` and `.txt`.
 
 ### Fetch Metrics
 ```bash
@@ -87,20 +94,27 @@ go run cmd/get_metrics_disk/main.go
 # or
 go run cmd/get_metrics_process/main.go
 ```
-Metrics display in the console.
+Metrics print to the console.
 
-## Customizing Examples
+## Customization
 
-Each example can be modified to suit your specific needs:
-- Change time ranges for metrics or logs
+Adjust the examples to suit your needs:
+
+- Modify time ranges
 - Add filtering parameters
-- Save output to different formats
-- Process data for analysis
+- Change output formats
+- Integrate data into your own tooling
 
-## Issues
+## Changelog
 
-To report issues, please leave feedback through the corresponding [Atlas Architecture Center](https://www.mongodb.com/docs/atlas/architecture/current/) documentation page using the "Rate This Page" button.
+For list of changes to this project, see [CHANGELOG](CHANGELOG.md).
+
+## Reporting Issues
+
+Use the "Rate this page" widget on the 
+[Atlas Architecture Center](https://www.mongodb.com/docs/atlas/architecture/current/) 
+docs to leave feedback or file issues.
 
 ## License
 
-This project is licensed under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0).
+This project is licensed under Apache 2.0. See [LICENSE](LICENSE).
