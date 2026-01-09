@@ -1,6 +1,20 @@
-# Secrets
-.env
+# IDE files
+.idea/
 
-# Logs
+# Secrets (keep example)
+.env
+!.env.example
+.env.*
+
+# Configs (keep example)
+configs/config.json
+configs/config.*.json
+!configs/config.example.json
+
+# temporary files
+tmp
+temp
+
+# downloaded logs
 *.log
 *.gz

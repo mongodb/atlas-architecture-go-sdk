@@ -2,47 +2,68 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"strings"
 
-	"atlas-sdk-go/internal"
+	"atlas-sdk-examples/internal/errors"
 )
 
+// Config holds the configuration for connecting to MongoDB Atlas
 type Config struct {
 	BaseURL     string `json:"MONGODB_ATLAS_BASE_URL"`
 	OrgID       string `json:"ATLAS_ORG_ID"`
 	ProjectID   string `json:"ATLAS_PROJECT_ID"`
 	ClusterName string `json:"ATLAS_CLUSTER_NAME"`
-	HostName    string
+	HostName    string `json:"ATLAS_HOSTNAME"`
 	ProcessID   string `json:"ATLAS_PROCESS_ID"`
 }
 
-func LoadConfig(path string) (*Config, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("open config %s: %w", path, err)
-	}
-	defer internal.SafeClose(f)
-
-	var c Config
-	if err := json.NewDecoder(f).Decode(&c); err != nil {
-		return nil, fmt.Errorf("decode %s: %w", path, err)
-	}
-
-	if c.BaseURL == "" {
-		c.BaseURL = "https://cloud.mongodb.com"
-	}
-	if c.HostName == "" {
-		// Go 1.18+:
-		if host, _, ok := strings.Cut(c.ProcessID, ":"); ok {
-			c.HostName = host
+// LoadConfig reads a JSON configuration file and returns a Config struct
+// It validates required fields and returns an error if any validation fails.
+func LoadConfig(path string) (Config, error) {
+	var config Config
+	if path == "" {
+		return config, &errors.ValidationError{
+			Message: "configuration file path cannot be empty",
 		}
 	}
 
-	if c.OrgID == "" || c.ProjectID == "" {
-		return nil, fmt.Errorf("ATLAS_ORG_ID and ATLAS_PROJECT_ID are required")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return config, &errors.NotFoundError{Resource: "configuration file", ID: path}
+		}
+		return config, errors.WithContext(err, "reading configuration file")
 	}
 
-	return &c, nil
+	if err = json.Unmarshal(data, &config); err != nil {
+		return config, errors.WithContext(err, "parsing configuration file")
+	}
+
+	if config.OrgID == "" {
+		return config, &errors.ValidationError{
+			Message: "organization ID is required in configuration",
+		}
+	}
+	if config.ProjectID == "" {
+		return config, &errors.ValidationError{
+			Message: "project ID is required in configuration",
+		}
+	}
+
+	if config.HostName == "" {
+		if host, _, ok := strings.Cut(config.ProcessID, ":"); ok {
+			config.HostName = host
+		} else {
+			return config, &errors.ValidationError{
+				Message: "process ID must be in the format 'hostname:port'",
+			}
+		}
+	}
+
+	if config.BaseURL == "" {
+		config.BaseURL = "https://cloud.mongodb.com" // Default base URL if not provided
+	}
+
+	return config, nil
 }
